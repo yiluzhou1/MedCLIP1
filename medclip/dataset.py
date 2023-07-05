@@ -109,7 +109,7 @@ class MedCLIPFeatureExtractor(CLIPFeatureExtractor):
         
         if self.do_resize and self.size is not None and self.resample is not None:
             images = [
-                self.resize(image=image, size=self.size, resample=self.resample)
+                self.resize(image=np.array(image), size=self.size, resample=self.resample)
                 for image in images
             ]
         if self.do_center_crop and self.crop_size is not None:
@@ -134,11 +134,21 @@ class MedCLIPFeatureExtractor(CLIPFeatureExtractor):
     def pad_img(self, img, min_size=224, fill_color=0):
         '''pad img to square.
         '''
+        if isinstance(min_size, int):
+            min_size = min_size
+        elif isinstance(min_size, dict):
+            min_size = list(min_size.values())[0]
         x, y = img.size
         size = max(min_size, x, y)
-        new_im = Image.new('L', (size, size), fill_color)
+        if self.do_convert_rgb:
+            new_im = Image.new('RGB', (size, size), fill_color)
+        else:
+            new_im = Image.new('L', (size, size), fill_color)
         new_im.paste(img, (int((size - x) / 2), int((size - y) / 2)))
         return new_im
+    
+    def convert_rgb(self, img):
+        return img.convert('RGB')
 
 class MedCLIPProcessor(CLIPProcessor):
     '''

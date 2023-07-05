@@ -75,7 +75,7 @@ class MedCLIPVisionModel(nn.Module):
 
     def forward(self, pixel_values, **kwargs):
         '''args:
-        pixel_values: tensor with shape [bs, 3, img_size, img_size]
+        pixel_values: tensor with shape [bs, 3, img_size, img_size] NCHW
         '''
         if pixel_values.shape[1] == 1: pixel_values = pixel_values.repeat((1,3,1,1))
         img_embeds = self.model(pixel_values)
@@ -195,6 +195,7 @@ class MedCLIPModel(nn.Module):
 
     def encode_image(self, pixel_values=None):
         # image encoder
+        print(f'pixel_values shape: {pixel_values.shape}') 
         vision_output = self.vision_model(pixel_values=pixel_values)
         img_embeds = vision_output / vision_output.norm(dim=-1, keepdim=True)
         return img_embeds
@@ -210,6 +211,7 @@ class MedCLIPModel(nn.Module):
         if attention_mask is not None:
             attention_mask = attention_mask.cuda()
         pixel_values = pixel_values.cuda()
+        pixel_values = pixel_values.permute(0, 3, 1, 2) #change from NHWC to NCHW
 
         img_embeds = self.encode_image(pixel_values)
         text_embeds = self.encode_text(input_ids, attention_mask)
