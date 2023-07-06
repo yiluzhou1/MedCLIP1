@@ -195,7 +195,6 @@ class MedCLIPModel(nn.Module):
 
     def encode_image(self, pixel_values=None):
         # image encoder
-        print(f'pixel_values shape: {pixel_values.shape}') 
         vision_output = self.vision_model(pixel_values=pixel_values)
         img_embeds = vision_output / vision_output.norm(dim=-1, keepdim=True)
         return img_embeds
@@ -212,6 +211,7 @@ class MedCLIPModel(nn.Module):
             attention_mask = attention_mask.cuda()
         pixel_values = pixel_values.cuda()
         pixel_values = pixel_values.permute(0, 3, 1, 2) #change from NHWC to NCHW
+        pixel_values = pixel_values.float() # change from float64 to float32
 
         img_embeds = self.encode_image(pixel_values)
         text_embeds = self.encode_text(input_ids, attention_mask)

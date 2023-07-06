@@ -18,6 +18,8 @@ develop-eggs/
 dist/
 downloads/
 test/
+pretrained/
+pretrained_models/
 eggs/
 .eggs/
 lib/
